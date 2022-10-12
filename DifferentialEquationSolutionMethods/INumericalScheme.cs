@@ -9,6 +9,10 @@ namespace DifferentialEquationSolutionMethods
         
         public IMathematicalProblem Problem { get; }
         
+        public List<Node> FreeDOF { get; }
+
+        public List<Node> BoundedDOF { get; }
+
         public LinearSystem LinearSystem { get; }
     }
 }
