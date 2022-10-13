@@ -16,11 +16,8 @@ namespace DifferentialEquationSolutionMethods
         public DifferentialEquationsSolutionMethodType Type => DifferentialEquationsSolutionMethodType.FiniteDifferences;
  
         public INumericalScheme NumericalScheme => SchemeSelector();
-
-
-
         
-        public FiniteDifferenceMethod(IMesh mesh,  IMathematicalProblem mathematicalProblem)
+        public FiniteDifferenceMethod(IMesh mesh, IMathematicalProblem mathematicalProblem)
         {
             this.Mesh = mesh;
             this.MathematicalProblem = mathematicalProblem;

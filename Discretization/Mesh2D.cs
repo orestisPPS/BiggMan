@@ -1,30 +1,20 @@
 namespace Discretization
 {
-    public class Mesh2D : IMesh2D
+    public class Mesh2D : IMesh
     {
 
-        /// <summary>
-        ///  Number of nodes in the x,ξ,r direction.
-        /// </summary>
-        /// <value></value>
-        public int NNDirectionOne { get; }
-
-        /// <summary>
-        ///  Number of nodes in the y,η,Θ direction.
-        /// </summary>
-        /// <value></value>
-        public int NNDirectionTwo { get; }
+        public Dictionary<Direction, int> NumberOfNodes { get; internal set; } = new Dictionary<Direction, int>();
 
         /// <summary>
         ///  The total number of nodes in the mesh.
         /// </summary>
-        public int TotalNodes => NNDirectionOne * NNDirectionTwo;
+        public int TotalNodes => CalculateTotalNodes();
 
         /// <summary>
         /// Node distribution in 2d array.
         /// </summary>
         /// <value></value>
-        public Node[,] NodesArray { get; set; }
+        public IEnumerable<Node[,]> NodesArray { get; set; }
 
         /// <summary>
         /// Key: Global ID of the node. Value: Node     
@@ -33,10 +23,27 @@ namespace Discretization
         
         public Mesh2D(int NNOne, int NNTwo)
         {
-            NNDirectionOne = NNOne;
+            NumberOfNodes.Add(IDirectionOne, NNOne);
             NNDirectionTwo = NNTwo;
             NodesArray = new Node[NNOne, NNTwo];
             NodesDictionary = new Dictionary<int, Node>();
+        }
+        
+        private int CalculateTotalNodes()
+        {
+            var product = 0;
+            foreach (var nodesPerDirection in NumberOfNodes.Values)
+            {
+                if (product == 0)
+                {
+                    product = nodesPerDirection;
+                }
+                else
+                {
+                    product *= nodesPerDirection;
+                }
+            }
+            return product;
         }
 
     }

@@ -3,10 +3,11 @@ namespace Discretization
     public interface IMesh
     {
         /// <summary>
-        /// Number of nodes in the x,ξ,r direction.
+        ///  Key: Direction Enum. One, Two, Three, Time
+        /// Value the number of nodes at direction_key
         /// </summary>
         /// <value></value>
-        int NNDirectionOne { get; }
+        Dictionary<Direction, int> NumberOFNodesPerDirection { get; internal set; }
 
         /// <summary>
         /// The total number of nodes in the mesh.
@@ -19,7 +20,7 @@ namespace Discretization
         /// Value: Node
         /// </summary>
         /// <value></value>
-        Dictionary<int, Node> NodesDictionary { get; set; }
+        Dictionary<int, Node> NodesDictionary { get; internal set; }
 
     }
 }

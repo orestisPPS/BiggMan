@@ -1,9 +1,11 @@
 namespace Discretization
 {
-    public class TemplateX : IDirectionOne
+    public class TemplateX : ICoordinate
     {
         public CoordinateType Type => CoordinateType.TemplateX;
         public double Value { get; set; }
+        public Direction Direction => Direction.One;
+        
         public TemplateX()
         {
             Value = double.NaN;

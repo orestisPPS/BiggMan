@@ -25,5 +25,6 @@ namespace Discretization
     {
         public double Value {get; set;}
         public CoordinateType Type {get; }
+        public Direction Direction {get; }
     }
 }
