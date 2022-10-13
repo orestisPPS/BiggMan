@@ -9,7 +9,7 @@ using utility;
 namespace Simulations
 {
 
-    public interface ISteadyStateSimulation : ISimulation
+    public interface ISteadyStateSimulation2D : ISimulation2D
     {
         public SteadyStateMathematicalProblem MathProblem { get; }
     }

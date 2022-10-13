@@ -2,19 +2,19 @@ using BoundaryConditions;
 using MathematicalProblems;
 using DifferentialEquations;
 using Discretization;
-using Meshing;
+using MeshGeneration;
 using Constitutive;
 using DifferentialEquationSolutionMethods;
 using Simulations;
 using utility;
 using System.Diagnostics;
 
-public class SteadyStateSimulation : ISteadyStateSimulation
+public class SteadyStateSimulation : ISteadyStateSimulation2D
 {
     public int Id { get; }
     public SimulationType Type => SimulationType.SteadyState;
     
-    public Node [,] Nodes { get; }
+    public Mesh2D Mesh { get; }
 
     public SteadyStateMathematicalProblem MathProblem { get; }
 
@@ -26,14 +26,14 @@ public class SteadyStateSimulation : ISteadyStateSimulation
 
     public List<Node> FreeDegreesOfFreedom { get; }
 
-    public SteadyStateSimulation(int id, Node[,] nodes, SteadyStateMathematicalProblem mathProblem,
+    public SteadyStateSimulation(int id, Mesh2D mesh, SteadyStateMathematicalProblem mathProblem,
                                  DifferentialEquationsSolutionMethodType solutionMethodType, ComputationalDomainType computationalDomainType)
     {
         Console.WriteLine($"Initiating steady state simulation {id} ...");
         var sw = new Stopwatch();
         sw.Start();
         this.Id = id;
-        this.Nodes = nodes;
+        this.Mesh = mesh;
         this.MathProblem = mathProblem;
         this.SolutionMethodType = solutionMethodType;
         this.ComputationalDomainType = computationalDomainType;
@@ -47,7 +47,7 @@ public class SteadyStateSimulation : ISteadyStateSimulation
     private void AssignDegreesOfFreedomToNodes()
     {
         Console.WriteLine($"Simulation {Id}: Assigning degrees of freedom to nodes...");
-        foreach (var node in Nodes)
+        foreach (var node in Mesh.NodesArray)
         {
             node.DegreesOfFreedom.Add(MathProblem.DegreeOfFreedom.Type, MathProblem.DegreeOfFreedom);
         }
@@ -59,7 +59,7 @@ public class SteadyStateSimulation : ISteadyStateSimulation
         foreach (var boundary in MathProblem.BoundaryConditions.Keys)
         {
             var iBoundary = new DomainBoundary(boundary);
-            iBoundary.AssignNodesToBoundary(Nodes);
+            iBoundary.AssignNodesToBoundary(Mesh.NodesArray);
 
             if (iBoundary.NumberOfNodes != MathProblem.BoundaryConditions[boundary].Count)
             {
@@ -92,17 +92,14 @@ public class SteadyStateSimulation : ISteadyStateSimulation
         }
     }
 
-    private IDifferentialEquationSolutionMethod AssignSolutionMethod()
+    private void AssignSolutionMethod()
     {
         Console.WriteLine("Assigning solution method...");
         switch (SolutionMethodType)
         {
-            case DifferentialEquationsSolutionMethodType.FiniteDifferences:
-                return new FiniteDifferenceMethod(Nodes, MathProblem);
-            //case DifferentialEquationsSolutionMethodType.FiniteElementsMethod:
-                //return new FiniteElementsMethod(Nodes, MathProblem);
-            default:
-                throw new Exception("Solution method not implemented");
+            case (DifferentialEquationsSolutionMethodType.FiniteDifferences):
+                SolutionMethod = new FiniteDifferencesSolutionMethod2D(this);
+                break;
         }
     }
 

@@ -3,6 +3,7 @@ using Discretization;
 using Constitutive;
 using DifferentialEquations;
 using BoundaryConditions;
+using MeshGeneration;
 using DifferentialEquationSolutionMethods;
 using utility;
 
@@ -13,13 +14,13 @@ namespace Simulations
         SteadyState,
         Transient
     }
-    public interface ISimulation
+    public interface ISimulation2D
     {
         int Id { get; }
 
         SimulationType Type { get; }
         
-        Node[,] Nodes { get; }
+        Mesh2D Mesh { get; }
 
         DifferentialEquationsSolutionMethodType SolutionMethodType { get; }
 

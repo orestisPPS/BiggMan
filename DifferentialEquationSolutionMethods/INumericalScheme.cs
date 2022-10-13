@@ -5,14 +5,13 @@ using prizaLinearAlgebra;
 namespace DifferentialEquationSolutionMethods
 {
     public interface INumericalScheme
-    {
+    {        
+        IMathematicalProblem Problem { get; }
         
-        public IMathematicalProblem Problem { get; }
-        
-        public List<Node> FreeDOF { get; }
+        List<Node> FreeDOF { get; }
 
-        public List<Node> BoundedDOF { get; }
+        List<Node> BoundedDOF { get; }
 
-        public LinearSystem LinearSystem { get; }
+        LinearSystem LinearSystem { get; }
     }
 }

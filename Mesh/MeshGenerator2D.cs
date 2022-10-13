@@ -8,12 +8,12 @@ using Simulations;
 using System.Threading.Tasks;
 using System.Diagnostics;
 
-namespace Meshing
+namespace MeshGeneration
 {
     public class MeshGenerator2D
     {
         public MeshSpecs2D MeshSpecs { get; }
-        private MeshPreProcessor PreProcessor;
+        private Mesh2DPreProcessor PreProcessor;
         private SteadyStateMathematicalProblem MathematicalProblemForX;
         private SteadyStateMathematicalProblem MathematicalProblemForY;
         private SteadyStateSimulation SimulationForX;
@@ -23,7 +23,7 @@ namespace Meshing
         public MeshGenerator2D(MeshSpecs2D specs)
         {
             this.MeshSpecs = specs;
-            PreProcessor = new MeshPreProcessor(specs);
+            PreProcessor = new Mesh2DPreProcessor(specs);
             Domain = new Parallelogram(specs);
             MathematicalProblemForX = CreateMathematicalProblemForX();
             MathematicalProblemForY = CreateMathematicalProblemForY();
@@ -50,19 +50,19 @@ namespace Meshing
 
         private SteadyStateSimulation CreateSimulationForX()
         {
-            var nodes = PreProcessor.Nodes;
+            var mesh = PreProcessor.Mesh;
             var solutionMethodType = DifferentialEquationsSolutionMethodType.FiniteDifferences;
             var computationalDomainType = ComputationalDomainType.Parametric;
-            SimulationForX = new SteadyStateSimulation(0, nodes, MathematicalProblemForX, solutionMethodType, computationalDomainType);
+            SimulationForX = new SteadyStateSimulation(0, mesh, MathematicalProblemForX, solutionMethodType, computationalDomainType);
             return SimulationForX;
         }
 
         private SteadyStateSimulation CreateSimulationForY()
         {
-            var nodes = PreProcessor.Nodes;
+            var mesh = PreProcessor.Mesh;
             var solutionMethodType = DifferentialEquationsSolutionMethodType.FiniteDifferences;
             var computationalDomainType = ComputationalDomainType.Parametric;
-            SimulationForY = new SteadyStateSimulation(1, nodes, MathematicalProblemForY, solutionMethodType, computationalDomainType);
+            SimulationForY = new SteadyStateSimulation(1, mesh, MathematicalProblemForY, solutionMethodType, computationalDomainType);
             return SimulationForY;
         }
 

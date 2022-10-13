@@ -4,37 +4,34 @@ using DifferentialEquations;
 using System.Diagnostics;
 using utility;
 
-namespace Meshing
+namespace MeshGeneration
 {
-    public class MeshPreProcessor
+    public class Mesh2DPreProcessor
     {
         public MeshSpecs2D Specs { get; }
 
-        public Node[,] Nodes {get; set;}
-
-        //public Dictionary<Tuple<int, int>, Node> NodesDictionary { get; set; } = new Dictionary<Tuple<int, int>, Node>();
-        public Dictionary<int, Node> NodesDictionary { get; set; } = new Dictionary<int, Node>();
+        public Mesh2D Mesh { get; set; }
 
         public Dictionary<Node, NodeMetrics> Metrics {get; internal set;} = new Dictionary<Node, NodeMetrics>();
 
         public DifferentialEquationProperties DomainProperties {get; internal set;}
         
-        public NodeFactory NodeFactory {get; internal set;}
-
-        public MeshPreProcessor(MeshSpecs2D specs)
+        private NodeFactory NodeFactory;
+        public Mesh2DPreProcessor(MeshSpecs2D specs)
         {
             this.Specs = specs;
-            Nodes = InitiateNodes();
+            this.Mesh = new Mesh2D(specs.NNDirectionOne, specs.NNDirectionTwo);
+            InitiateNodes();
             AssingCoordinatesToNodes();
-            //PrintNodes();
-            CreateNodeIdDictionary();
             CalculateMeshMetrix();
             DomainProperties = AssignMeshGenerationProperties();
             ClearMemory();
+            //PrintNodes();
         }
         ///This method prints the parametric coordinates of the nodes as well as the node ids
         public void PrintNodes()
         {
+            var Nodes = Mesh.NodesArray;
             for (int j = 0; j < Nodes.GetLength(1); j++)
             {
                 for (int i = 0; i < Nodes.GetLength(0); i++)
@@ -44,15 +41,16 @@ namespace Meshing
             }
         }
         
-        private Node[,] InitiateNodes()
+        private void InitiateNodes()
         {
-            var sw = new Stopwatch();
+            var sw = new Stopwatch(); 
             sw.Start();
             Console.WriteLine("Initiating nodes...");
             NodeFactory = new NodeFactory(numberOfNodesX : Specs.NNDirectionOne, numberOfNodesY : Specs.NNDirectionTwo);
+            Mesh.NodesArray = NodeFactory.NodesArray;
+            Mesh.NodesDictionary = NodeFactory.NodesDictionary;
             sw.Stop();
             Console.WriteLine($"Nodes initiated in {sw.ElapsedMilliseconds} ms");
-            return NodeFactory.Nodes;
         }
 
         private void AssingCoordinatesToNodes()
@@ -76,13 +74,14 @@ namespace Meshing
 
         private void AssignNaturalMeshCoordinatesToNodes(int i, int j)
         {
+            var Nodes = Mesh.NodesArray;
             Nodes[i, j].Coordinates.Add(CoordinateType.NaturalX, new NaturalX());
             Nodes[i, j].Coordinates.Add(CoordinateType.NaturalY, new NaturalY());
         }
 
         private void AssgignComputationalMeshCoordinatesToNodes(int i, int j)
         {
-
+            var Nodes = Mesh.NodesArray;
             Nodes[i, j].Coordinates.Add(CoordinateType.ParametricKsi, new ParametricKsi(i));
             Nodes[i, j].Coordinates.Add(CoordinateType.ParametricIta, new ParametricIta(j));
         }
@@ -90,6 +89,7 @@ namespace Meshing
         private void AssignTemplateMeshCoordinatesToNodes(int i, int j)
         {
             var templateCoordinates = Transform(new double[] {i, j}); 
+            var Nodes = Mesh.NodesArray;
             Nodes[i, j].Coordinates.Add(CoordinateType.TemplateX, new TemplateX(templateCoordinates[0]));
             Nodes[i, j].Coordinates.Add(CoordinateType.TemplateY, new TemplateY(templateCoordinates[1]));
         }
@@ -106,7 +106,7 @@ namespace Meshing
         {   Console.WriteLine("Calculating mesh metrics...");
             var sw = new Stopwatch();
             sw.Start();
-            var MetricsCalculator = new MetricsCalculator(NodesDictionary, Specs.NNDirectionOne, Specs.NNDirectionTwo);
+            var MetricsCalculator = new MetricsCalculator(Mesh.NodesDictionary, Specs.NNDirectionOne, Specs.NNDirectionTwo);
             sw.Stop();
             Console.WriteLine($"Mesh metrics calculated in {sw.ElapsedMilliseconds} ms");
             Metrics = MetricsCalculator.MeshMetrics;
@@ -114,7 +114,7 @@ namespace Meshing
 
         private void ClearMemory()
         {
-            foreach (var node in Nodes)
+            foreach (var node in Mesh.NodesArray)
             {
                 //node.Coordinates.Remove(CoordinateType.ParametricKsi);
                 //node.Coordinates.Remove(CoordinateType.ParametricIta);
@@ -129,7 +129,7 @@ namespace Meshing
             var convectionCoefficients = new Dictionary<Node, double[]>();
             var dependentReactionCoefficients = new Dictionary<Node, double[]>();
             var independentReactionCoefficients = new Dictionary<Node, double[]>();
-            foreach (var node in Nodes)
+            foreach (var node in Mesh.NodesArray)
             {
                 diffusionCoefficients.Add(node, Metrics[node].contravariantTensor);
                 convectionCoefficients.Add(node, new double[] {0, 0});
@@ -140,13 +140,6 @@ namespace Meshing
                                                                                   dependentReactionCoefficients, independentReactionCoefficients);
         }
 
-        private void CreateNodeIdDictionary()
-        {
-            foreach (var node in Nodes)
-            {
-                NodesDictionary.Add(node.Id.Global, node);
-            }
-        }
 
     }
 }

@@ -1,7 +1,7 @@
 using BoundaryConditions;
 using prizaLinearAlgebra;
 using utility;
-namespace Meshing
+namespace MeshGeneration
 {
     public abstract class BoundaryCreator
     {

@@ -1,5 +1,5 @@
 using Discretization;
-namespace Meshing
+namespace Discretization
 {
     public class DomainBoundary
     {

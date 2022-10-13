@@ -1,7 +1,7 @@
 using Discretization;
 using prizaLinearAlgebra;
 using utility;
-namespace Meshing
+namespace MeshGeneration
 {
     public class MetricsCalculator
     {

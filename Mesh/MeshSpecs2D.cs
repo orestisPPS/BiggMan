@@ -1,6 +1,6 @@
 using Discretization;
 using Constitutive;
-namespace Meshing
+namespace MeshGeneration
 {
     public class MeshSpecs2D
     {

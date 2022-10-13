@@ -18,8 +18,6 @@ namespace DifferentialEquationSolutionMethods
 
         INumericalScheme NumericalScheme { get; }
 
-        List<Node> FreeDOF { get; }
-
-        List<Node> BoundedDOF { get; }
+        IMesh Mesh { get; }
     }
 }

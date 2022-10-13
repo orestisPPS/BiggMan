@@ -9,15 +9,18 @@ namespace DifferentialEquationSolutionMethods
 {
     public class ConvectionDiffusionReactionFiniteDifferenceScheme : INumericalScheme
     {
-        public Node[,] Nodes { get; }
+        public List<Node> FreeDOF { get; }
 
+        public List<Node> BoundedDOF { get; }
+        
         public IMathematicalProblem Problem { get; }
 
-        public LinearSystem LinearSystem {get;}
+        public LinearSystem LinearSystem {get; set;}
 
-        public ConvectionDiffusionReactionFiniteDifferenceScheme(Node[,] nodes, IMathematicalProblem problem)
+        public ConvectionDiffusionReactionFiniteDifferenceScheme(List<Node> FreeDOF, List<Node> BoundedDOF, IMathematicalProblem problem)
         {
-            this.Nodes = nodes;
+            this.FreeDOF = FreeDOF;
+            this.BoundedDOF = BoundedDOF;
             this.Problem = problem;
             this.LinearSystem = CreateLinearSystem();
         }
@@ -84,6 +87,11 @@ namespace DifferentialEquationSolutionMethods
             return new double[1];
         }
 
+        public double CoefficientCalculator(Node node, Node neighbour, int direction)
+        {
+            // TODO - Create Coefficient Calculator
+            return 0;
+        }
  
 
     }

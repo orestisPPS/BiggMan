@@ -1,6 +1,6 @@
  using AwokeKnowing.GnuplotCSharp;
  using Discretization;
- namespace Meshing
+ namespace MeshGeneration
  {
 
     public static class MeshUtility

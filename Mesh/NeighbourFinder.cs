@@ -1,6 +1,6 @@
 using Discretization;
 using utility;
-namespace Meshing
+namespace MeshGeneration
 {
     public class NeighbourFinder
     {
