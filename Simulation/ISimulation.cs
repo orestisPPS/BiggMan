@@ -20,7 +20,7 @@ namespace Simulations
 
         SimulationType Type { get; }
         
-        Mesh2D Mesh { get; }
+        Mesh Mesh { get; }
 
         DifferentialEquationsSolutionMethodType SolutionMethodType { get; }
 

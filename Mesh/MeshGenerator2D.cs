@@ -50,7 +50,7 @@ namespace MeshGeneration
 
         private SteadyStateSimulation CreateSimulationForX()
         {
-            var mesh = PreProcessor.Mesh;
+            var mesh = PreProcessor.MeshBeta;
             var solutionMethodType = DifferentialEquationsSolutionMethodType.FiniteDifferences;
             var computationalDomainType = ComputationalDomainType.Parametric;
             SimulationForX = new SteadyStateSimulation(0, mesh, MathematicalProblemForX, solutionMethodType, computationalDomainType);
@@ -59,7 +59,7 @@ namespace MeshGeneration
 
         private SteadyStateSimulation CreateSimulationForY()
         {
-            var mesh = PreProcessor.Mesh;
+            var mesh = PreProcessor.MeshBeta;
             var solutionMethodType = DifferentialEquationsSolutionMethodType.FiniteDifferences;
             var computationalDomainType = ComputationalDomainType.Parametric;
             SimulationForY = new SteadyStateSimulation(1, mesh, MathematicalProblemForY, solutionMethodType, computationalDomainType);

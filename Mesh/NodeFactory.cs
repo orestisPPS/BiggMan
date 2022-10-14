@@ -11,15 +11,13 @@ namespace MeshGeneration
         /// domain, in the order they they appear in the domain (from left to right)
         /// </summary>
         /// <value></value>
-        public Node[,] NodesArray {get; set;}
+        private Node[,] NodesArray {get; set;}
         
         public Dictionary<int, DomainBoundary> DomainBoundaries {get; set;} = new Dictionary<int, DomainBoundary>();
 
         private int NumberOfNodesX {get;}
 
         private int NumberOfNodesY {get;}
-
-        public Dictionary<int, Node> NodesDictionary {get; set;} = new Dictionary<int, Node>();
 
         public NodeFactory(int numberOfNodesX, int numberOfNodesY)
         {
@@ -113,10 +111,28 @@ namespace MeshGeneration
                 for (int column = 0; column < NumberOfNodesX; column++)
                 {
                     NodesArray[column, row].Id.Global = k;
-                    NodesDictionary.Add(k, NodesArray[column, row]);
                     k++;
                 }
             }
         }
+        public (Dictionary<List<int>, Node>, Dictionary<int, Node>, Dictionary<Direction,int>) MeshConstructorArguments()
+        {
+            var nodesArrayDictionary = new Dictionary<List<int>, Node>();
+            var nodesDictionary = new Dictionary<int, Node>();
+            var numberOfNodesPerDirection = new Dictionary<Direction, int>();
+            numberOfNodesPerDirection.Add(Direction.One, NumberOfNodesX);
+            numberOfNodesPerDirection.Add(Direction.Two, NumberOfNodesY);
+
+            for (int row = 0; row < NumberOfNodesY; row++)
+            {
+                for (int column = 0; column < NumberOfNodesX; column++)
+                {
+                    nodesArrayDictionary.Add(new List<int>(){column, row}, NodesArray[column, row]);
+                    nodesDictionary.Add(NodesArray[column, row].Id.Global, NodesArray[column, row]);
+                }
+            }
+            return (nodesArrayDictionary, nodesDictionary, numberOfNodesPerDirection);
+        }
+
     }
 }

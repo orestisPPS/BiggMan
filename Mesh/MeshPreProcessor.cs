@@ -10,7 +10,7 @@ namespace MeshGeneration
     {
         public MeshSpecs2D Specs { get; }
 
-        public Mesh2D Mesh { get; set; }
+        public Mesh MeshBeta { get; set; }
 
         public Dictionary<Node, NodeMetrics> Metrics {get; internal set;} = new Dictionary<Node, NodeMetrics>();
 
@@ -20,8 +20,7 @@ namespace MeshGeneration
         public Mesh2DPreProcessor(MeshSpecs2D specs)
         {
             this.Specs = specs;
-            this.Mesh = new Mesh2D(specs.NNDirectionOne, specs.NNDirectionTwo);
-            InitiateNodes();
+            InitiateMesh();
             AssingCoordinatesToNodes();
             CalculateMeshMetrix();
             DomainProperties = AssignMeshGenerationProperties();
@@ -31,24 +30,30 @@ namespace MeshGeneration
         ///This method prints the parametric coordinates of the nodes as well as the node ids
         public void PrintNodes()
         {
-            var Nodes = Mesh.NodesArray;
-            for (int j = 0; j < Nodes.GetLength(1); j++)
+            
+            for (int j = 0; j < MeshBeta.NumberOfNodesPerDirection[Direction.Two]; j++)
             {
-                for (int i = 0; i < Nodes.GetLength(0); i++)
+                for (int i = 0; i < MeshBeta.NumberOfNodesPerDirection[Direction.One]; i++)
                 {
-                    Console.WriteLine($"G id: {Nodes[i, j].Id.Global}, B id: {Nodes[i, j].Id.Boundary}, I id: {Nodes[i, j].Id.Internal}, x: {Nodes[i, j].Coordinates[CoordinateType.ParametricKsi].Value}, y: {Nodes[i, j].Coordinates[CoordinateType.ParametricIta].Value}");
+                    var node = MeshBeta.Node(i, j);
+                    Console.WriteLine($"G id: {node.Id.Global}, B id: {node.Id.Boundary}, I id: {node.Id.Internal}, x: {node.Coordinates[CoordinateType.ParametricKsi].Value}, y: {node.Coordinates[CoordinateType.ParametricIta].Value}");
                 }
             }
         }
         
-        private void InitiateNodes()
+        private void InitiateMesh()
         {
             var sw = new Stopwatch(); 
             sw.Start();
             Console.WriteLine("Initiating nodes...");
+
             NodeFactory = new NodeFactory(numberOfNodesX : Specs.NNDirectionOne, numberOfNodesY : Specs.NNDirectionTwo);
-            Mesh.NodesArray = NodeFactory.NodesArray;
-            Mesh.NodesDictionary = NodeFactory.NodesDictionary;
+            var nodesArrayDictionary = NodeFactory.MeshConstructorArguments().Item1;
+            var nodesIdDictionary = NodeFactory.MeshConstructorArguments().Item2;
+            var nodesPerDirection = NodeFactory.MeshConstructorArguments().Item3;
+            
+            MeshBeta = new Mesh(nodesArrayDictionary, nodesIdDictionary, nodesPerDirection);
+
             sw.Stop();
             Console.WriteLine($"Nodes initiated in {sw.ElapsedMilliseconds} ms");
         }
@@ -74,24 +79,24 @@ namespace MeshGeneration
 
         private void AssignNaturalMeshCoordinatesToNodes(int i, int j)
         {
-            var Nodes = Mesh.NodesArray;
-            Nodes[i, j].Coordinates.Add(CoordinateType.NaturalX, new NaturalX());
-            Nodes[i, j].Coordinates.Add(CoordinateType.NaturalY, new NaturalY());
+            var node = MeshBeta.Node(i, j);
+            node.Coordinates.Add(CoordinateType.NaturalX, new NaturalX());
+            node.Coordinates.Add(CoordinateType.NaturalY, new NaturalY());
         }
 
         private void AssgignComputationalMeshCoordinatesToNodes(int i, int j)
         {
-            var Nodes = Mesh.NodesArray;
-            Nodes[i, j].Coordinates.Add(CoordinateType.ParametricKsi, new ParametricKsi(i));
-            Nodes[i, j].Coordinates.Add(CoordinateType.ParametricIta, new ParametricIta(j));
+            var node = MeshBeta.Node(i, j);
+            node.Coordinates.Add(CoordinateType.ParametricKsi, new ParametricKsi(i));
+            node.Coordinates.Add(CoordinateType.ParametricIta, new ParametricIta(j));
         }
 
         private void AssignTemplateMeshCoordinatesToNodes(int i, int j)
         {
             var templateCoordinates = Transform(new double[] {i, j}); 
-            var Nodes = Mesh.NodesArray;
-            Nodes[i, j].Coordinates.Add(CoordinateType.TemplateX, new TemplateX(templateCoordinates[0]));
-            Nodes[i, j].Coordinates.Add(CoordinateType.TemplateY, new TemplateY(templateCoordinates[1]));
+            var node = MeshBeta.Node(i, j);
+            node.Coordinates.Add(CoordinateType.TemplateX, new TemplateX(templateCoordinates[0]));
+            node.Coordinates.Add(CoordinateType.TemplateY, new TemplateY(templateCoordinates[1]));
         }
 
         private double[] Transform(double[] initialCoord)
@@ -106,7 +111,7 @@ namespace MeshGeneration
         {   Console.WriteLine("Calculating mesh metrics...");
             var sw = new Stopwatch();
             sw.Start();
-            var MetricsCalculator = new MetricsCalculator(Mesh.NodesDictionary, Specs.NNDirectionOne, Specs.NNDirectionTwo);
+            var MetricsCalculator = new MetricsCalculator(MeshBeta.NodesDictionary, Specs.NNDirectionOne, Specs.NNDirectionTwo);
             sw.Stop();
             Console.WriteLine($"Mesh metrics calculated in {sw.ElapsedMilliseconds} ms");
             Metrics = MetricsCalculator.MeshMetrics;
@@ -114,7 +119,7 @@ namespace MeshGeneration
 
         private void ClearMemory()
         {
-            foreach (var node in Mesh.NodesArray)
+            foreach (var node in MeshBeta.NodesDictionary.Values)
             {
                 //node.Coordinates.Remove(CoordinateType.ParametricKsi);
                 //node.Coordinates.Remove(CoordinateType.ParametricIta);
@@ -129,7 +134,7 @@ namespace MeshGeneration
             var convectionCoefficients = new Dictionary<Node, double[]>();
             var dependentReactionCoefficients = new Dictionary<Node, double[]>();
             var independentReactionCoefficients = new Dictionary<Node, double[]>();
-            foreach (var node in Mesh.NodesArray)
+            foreach (var node in MeshBeta.NodesDictionary.Values)
             {
                 diffusionCoefficients.Add(node, Metrics[node].contravariantTensor);
                 convectionCoefficients.Add(node, new double[] {0, 0});

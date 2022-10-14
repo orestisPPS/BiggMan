@@ -8,28 +8,27 @@ namespace Discretization
     }
     public class Mesh : IMesh
     {
+        private Dictionary<List<int>, Node> NodesArrayDictionary { get; set;} = new Dictionary<List<int>, Node>();
 
         /// <summary>
-        ///  Key: Direction Enum. One, Two, Three, Time
-        /// Value the number of nodes at direction_key
+        /// The number of nodes in each direction of the mesh
         /// </summary>
-        /// <value></value>
-        private Dictionary<List<int>, Node> NodesArrayDictionary { get; set;} = new Dictionary<List<int>, Node>();
-        
-        public Dictionary<Direction, int> NumberOfNodesPerDirection { get;} = new Dictionary<Direction, int>();
+        /// <typeparam name="Direction">Direction enum : axis 1,2,3 of an orthonormal basis</typeparam>
+        /// <typeparam name="int">Number of nodes at Direction i</typeparam>
+        /// <returns></returns>        
+        public Dictionary<Direction, int> NumberOfNodesPerDirection { get; } = new Dictionary<Direction, int>();
 
         /// <summary>
         /// The total number of nodes in the mesh.
         /// </summary>
         /// <value></value>
-        public int TotalNodes => NodesDictionary.Count;
-
+        public int TotalNodes { get; private set; }
         /// <summary>
         /// Key: Global ID of the node
         /// Value: Node
         /// </summary>
         /// <value></value>
-        public Dictionary<int, Node> NodesDictionary { get; internal set; } = new Dictionary<int, Node>();
+        public Dictionary<int, Node> NodesDictionary { get; set; } = new Dictionary<int, Node>();
 
         /// <summary>
         /// The type of the mesh according to the number of dimensions. (1D/2D/3D)
@@ -44,26 +43,31 @@ namespace Discretization
         /// <value></value>
         private bool InputTestPassed  = false;
 
+
         /// <summary>
         /// A computational mesh
         /// </summary>
-        /// <param name="nodes"
+        /// <param name="nodesArrayDictionary"
         /// > Key : i,j,k etc positions of the node in the 1D, 2D, 3D array correspondingly. Value: Node</param>
-        public Mesh(Dictionary<List<int>,Node> nodes, Dictionary<Direction, int> numberOfNodesPerDirection)
+        public Mesh(Dictionary<List<int>,Node> nodesArrayDictionary, Dictionary<int, Node> nodesDictionary,
+                    Dictionary<Direction, int> numberOfNodesPerDirection)
         {
             this.NumberOfNodesPerDirection = numberOfNodesPerDirection;
-            InputTestPassed = CheckUnequilityInInputListsLength(nodes);
-            Initialize(InputTestPassed, nodes);
-
+            InputTestPassed = CheckUnequilityInInputListsLength(nodesArrayDictionary);
+            Initialize(InputTestPassed, nodesArrayDictionary, nodesDictionary, numberOfNodesPerDirection);
         }
-        private void Initialize( bool inputTestPassed, Dictionary<List<int>, Node> nodes)
+
+        private void Initialize(bool inputTestPassed, Dictionary<List<int>,Node> nodesArrayDictionary,
+                                Dictionary<int, Node> nodesDictionary, Dictionary<Direction, int> numberOfNodesPerDirection)
         {
             switch (inputTestPassed)
             {
                 case true:
-                    this.NodesArrayDictionary = nodes;
-                    this.NodesDictionary = CreateNodesDictionary();
+                    this.NodesArrayDictionary = nodesArrayDictionary;
+                    this.NodesDictionary = nodesDictionary;
                     this.MeshType = DefineMeshType();
+                    this.TotalNodes = NodesDictionary.Count;
+
                     break;
                 case false:
                     MeshType = MeshType.TwoDimensional;
@@ -111,7 +115,7 @@ namespace Discretization
             }
         }
 
-        public Node NodeI (int i)
+        public Node Node (int i)
         {
             if (NodesArrayDictionary.ContainsKey(new List<int>{i}))
             {
@@ -132,7 +136,7 @@ namespace Discretization
 
         }
 
-        public Node NodeIJ (int i, int j)
+        public Node Node (int i, int j)
         {
             if (NodesArrayDictionary.ContainsKey(new List<int>{i,j}))
             {
@@ -143,9 +147,9 @@ namespace Discretization
                 switch (MeshType)
                 {
                     case MeshType.OneDimensional:
-                        throw new Exception("The node searched belongs to 2D domain. This mesh is 1D.");
+                        throw new Exception("WANK! Searching a 2D node in a 1D domain.");
                     case MeshType.ThreeDimensional:
-                        throw new Exception("The node searched belongs to 2D domain. This mesh is 3D.");
+                        throw new Exception("WANK! Searching a 2D node in a 3D domain."); 
                     default:
                         throw new Exception("Node does not exist.");
                 }
@@ -153,7 +157,7 @@ namespace Discretization
 
         }
 
-        public Node NodeIJK (int i, int j, int k)
+        public Node Node (int i, int j, int k)
         {
             if (NodesArrayDictionary.ContainsKey(new List<int>{i,j,k}))
             {
@@ -164,9 +168,9 @@ namespace Discretization
                 switch (MeshType)
                 {
                     case MeshType.OneDimensional:
-                        throw new Exception("The node searched belongs to 3D domain. This mesh is 1D.");
+                        throw new Exception("WANK! Searching a 3D node in an 1D domain.");
                     case MeshType.TwoDimensional:
-                        throw new Exception("The node searched belongs to 3D domain. This mesh is 2D.");
+                        throw new Exception("WANK! Searching a 3D node in a 2D domain");
                     default:
                         throw new Exception("Node does not exist.");
                 }

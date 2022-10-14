@@ -7,7 +7,7 @@ namespace Discretization
         /// Value the number of nodes at direction_key
         /// </summary>
         /// <value></value>
-        Dictionary<Direction, int> NumberOFNodesPerDirection { get; internal set; }
+        Dictionary<Direction, int> NumberOfNodesPerDirection { get; }
 
         /// <summary>
         /// The total number of nodes in the mesh.
@@ -20,7 +20,7 @@ namespace Discretization
         /// Value: Node
         /// </summary>
         /// <value></value>
-        Dictionary<int, Node> NodesDictionary { get; internal set; }
+        Dictionary<int, Node> NodesDictionary { get; }
 
     }
 }

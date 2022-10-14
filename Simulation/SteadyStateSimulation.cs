@@ -14,7 +14,7 @@ public class SteadyStateSimulation : ISteadyStateSimulation2D
     public int Id { get; }
     public SimulationType Type => SimulationType.SteadyState;
     
-    public Mesh2D Mesh { get; }
+    public Mesh Mesh { get; }
 
     public SteadyStateMathematicalProblem MathProblem { get; }
 
@@ -26,7 +26,7 @@ public class SteadyStateSimulation : ISteadyStateSimulation2D
 
     public List<Node> FreeDegreesOfFreedom { get; }
 
-    public SteadyStateSimulation(int id, Mesh2D mesh, SteadyStateMathematicalProblem mathProblem,
+    public SteadyStateSimulation(int id, Mesh mesh, SteadyStateMathematicalProblem mathProblem,
                                  DifferentialEquationsSolutionMethodType solutionMethodType, ComputationalDomainType computationalDomainType)
     {
         Console.WriteLine($"Initiating steady state simulation {id} ...");
@@ -47,7 +47,7 @@ public class SteadyStateSimulation : ISteadyStateSimulation2D
     private void AssignDegreesOfFreedomToNodes()
     {
         Console.WriteLine($"Simulation {Id}: Assigning degrees of freedom to nodes...");
-        foreach (var node in Mesh.NodesArray)
+        foreach (var node in Mesh.NodesDictionary.Values)
         {
             node.DegreesOfFreedom.Add(MathProblem.DegreeOfFreedom.Type, MathProblem.DegreeOfFreedom);
         }
@@ -98,7 +98,7 @@ public class SteadyStateSimulation : ISteadyStateSimulation2D
         switch (SolutionMethodType)
         {
             case (DifferentialEquationsSolutionMethodType.FiniteDifferences):
-                SolutionMethod = new FiniteDifferencesSolutionMethod2D(this);
+                SolutionMethod = new FiniteDifferenceMethod(Mesh, MathProblem);
                 break;
         }
     }
