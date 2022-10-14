@@ -8,40 +8,32 @@ namespace DifferentialEquationSolutionMethods
     {        
         public IMathematicalProblem Problem { get; }
         
-        public List<Node> FreeDOF { get; }
+        public IMesh Mesh { get; }
 
-        public List<Node> BoundedDOF { get; }
+        public List<Node> FreeDOF { get; } = new List<Node>();
+
+        public List<Node> BoundedDOF { get; } = new List<Node>();
 
         public LinearSystem LinearSystem { get; }
 
-        private void FindFreeDOF()
+        public void FindFreeDOF()
         {
-            FreeDOF = new List<Node>();
-
+            var nn1 = Mesh.NumberOfNodesPerDirection[Direction.One];
+            var nn2 = Mesh.NumberOfNodesPerDirection[Direction.Two];
             //Add internal nodes
-            for (int i = 1; i < Nodes.GetLength(0) - 1; i++)
+            for (int j = 1; j < nn2 - 1; j++)
             {
-                for (int j = 1; j < Nodes.GetLength(1) - 1; j++)
+                for (int i = 1; i < nn1 - 1; i++)
                 {
-                    FreeDOF.Add(Nodes[i, j]);
+                    FreeDOF.Add(Mesh.Node(i, j));
                 }
             }
+        }
 
-            foreach (var boundaryCondition in MathematicalProblem.BoundaryConditions.Values)
-            {
-                switch (boundaryCondition.)
-                {
-                    case BoundaryConditionType.Dirichlet:
-                        foreach (var node in boundaryCondition.Nodes)
-                        {
-                            FreeDOF.Remove(node);
-                        }
-                        break;
-                    case BoundaryConditionType.Neumann:
-                        break;
-                    default:
-                        break;
-                }
-            }
+        private void FindBoundedDOF()
+        {
+            foreach (var boundary in Problem.BoundaryConditions.k)
+        }
+
     }
 }

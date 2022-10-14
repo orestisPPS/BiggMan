@@ -12,8 +12,37 @@ namespace Discretization
         Three,
         Time
     }
-    public abstract class SpaceDirection
+    
+    public enum RelativePosition
     {
+        TopLeft,
+        Top,
+        TopRight,
+        Left,
+        Center,
+        Right,
+        BottomLeft,
+        Bottom,
+        BottomRight,
+        FrontTopLeft,
+        FrontTop,
+        FrontTopRight,
+        FrontLeft,
+        Front,
+        FrontRight,
+        FrontBottomLeft,
+        FrontBottom,
+        FrontBottomRight,
+        BackTopLeft,
+        BackTop,
+        BackTopRight,
+        BackLeft,
+        Back,
+        BackRight,
+        BackBottomLeft,
+        BackBottom,
+        BackBottomRight
 
+        
     }
 }

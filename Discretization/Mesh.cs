@@ -31,6 +31,12 @@ namespace Discretization
         public Dictionary<int, Node> NodesDictionary { get; set; } = new Dictionary<int, Node>();
 
         /// <summary>
+        /// Dictionary with the domain boundaries of the mesh. Key: RelativePosition enum. Value: List of nodes at the boundary.
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<RelativePosition, List<Node>> Boundaries { get; set; } = new Dictionary<RelativePosition, List<Node>>();
+
+        /// <summary>
         /// The type of the mesh according to the number of dimensions. (1D/2D/3D)
         /// </summary>
         /// <value></value>
@@ -67,6 +73,7 @@ namespace Discretization
                     this.NodesDictionary = nodesDictionary;
                     this.MeshType = DefineMeshType();
                     this.TotalNodes = NodesDictionary.Count;
+                    CreateDomainBoundaries();
 
                     break;
                 case false:
@@ -115,6 +122,84 @@ namespace Discretization
             }
         }
 
+        private void CreateDomainBoundaries()
+        {
+            var nnx = NumberOfNodesPerDirection[Direction.One];
+            var nny = NumberOfNodesPerDirection[Direction.Two];
+            var nnz = NumberOfNodesPerDirection[Direction.Three];
+            switch (MeshType)
+            {
+                case MeshType.OneDimensional:
+                    Create1DBoundaries();
+                    break;
+                case MeshType.TwoDimensional:
+                    Create2DBoundaries();
+                    break;
+                case MeshType.ThreeDimensional:
+                    Create3DBoundaries();
+                    break;
+                default:
+                    break;
+            }
+        }
+        private void Create1DBoundaries()
+        {
+            Boundaries.Add(RelativePosition.Left, new List<Node>() { NodesDictionary[0] });
+            Boundaries.Add(RelativePosition.Right, new List<Node>() { NodesDictionary[TotalNodes - 1] });
+        }
+
+        private void Create2DBoundaries()
+        {
+            var nnx = NumberOfNodesPerDirection[Direction.One];
+            var nny = NumberOfNodesPerDirection[Direction.Two];
+
+            for (int i = 0; i < nnx; i++)
+            {
+                Boundaries[RelativePosition.Bottom].Add(Node(i, 0));
+                Boundaries[RelativePosition.Top].Add(Node(i, nny - 1));
+            }
+
+            for (int j = 0; j < nny; j++)
+            {
+                Boundaries[RelativePosition.Left].Add(Node(0, j));
+                Boundaries[RelativePosition.Right].Add(Node(nnx - 1, j));
+            }
+
+        }
+
+        private void Create3DBoundaries()
+        {
+            var nnx = NumberOfNodesPerDirection[Direction.One];
+            var nny = NumberOfNodesPerDirection[Direction.Two];
+            var nnz = NumberOfNodesPerDirection[Direction.Three];
+
+            for (int i = 0; i < nnx; i++)
+            {
+                for (int j = 0; j < nny; j++)
+                {
+                    Boundaries[RelativePosition.Bottom].Add(Node(i, j, 0));
+                    Boundaries[RelativePosition.Top].Add(Node(i, j, nnz - 1));
+                }
+            }
+
+            for (int i = 0; i < nnx; i++)
+            {
+                for (int k = 0; k < nnz; k++)
+                {
+                    Boundaries[RelativePosition.Left].Add(Node(i, 0, k));
+                    Boundaries[RelativePosition.Right].Add(Node(i, nny - 1, k));
+                }
+            }
+
+            for (int j = 0; j < nny; j++)
+            {
+                for (int k = 0; k < nnz; k++)
+                {
+                    Boundaries[RelativePosition.Front].Add(Node(0, j, k));
+                    Boundaries[RelativePosition.Back].Add(Node(nnx - 1, j, k));
+                }
+            }
+        }
         public Node Node (int i)
         {
             if (NodesArrayDictionary.ContainsKey(new List<int>{i}))

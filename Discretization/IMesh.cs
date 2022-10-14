@@ -22,5 +22,31 @@ namespace Discretization
         /// <value></value>
         Dictionary<int, Node> NodesDictionary { get; }
 
+        Dictionary<RelativePosition, List<Node>> Boundaries { get; }
+        
+        /// <summary>
+        /// Returns the i th node of a 1D mesh
+        /// </summary>
+        /// <param name="i"></param>
+        /// <returns></returns>
+        Node Node (int i);
+
+        /// <summary>
+        ///  Returns the i,j th node of a 2D mesh
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="j"></param>
+        /// <returns></returns>
+        Node Node(int i, int j);
+        
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="j"></param>
+        /// <param name="k"></param>
+        /// <returns></returns>
+        Node Node(int i, int j, int k);
+
     }
 }
